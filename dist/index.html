@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="x-ua-compatible" content="IE=edge">
+        <!-- jquery -->
+        <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+        <script src="/index.e6eef22f.js"></script>
+        <script>$(document).ready(async function() {
+    var gen = new ParagraphGenerator("", Gender.Other);
+    var sentencePromise = gen.loadSentences("src/sentences.json");
+    var problemPromise = gen.loadProblemTreatments("src/problem_treatments.json");
+    problemPromise.done(()=>{
+        console.log("done");
+    }).fail((errPrms, textStatus, error)=>{
+        console.log("fail", errPrms, textStatus, error);
+    });
+    $.when(sentencePromise, problemPromise).done(function() {
+        // add problem type selection
+        console.log('promise');
+        var problems = gen.getProblemTypes();
+        for(var i = 0; i < problems.length; i++)$(".problems").append(new Option(problems[i], problems[i]));
+    });
+    $("#form").submit(function(event) {
+        event.preventDefault();
+        var data = $("#form").serializeArray();
+        var name = data[0].value;
+        var gender = data[1].value == "male" ? Gender.Male : Gender.Female;
+        var problem1 = data[2].value;
+        var problem2 = data[3].value;
+        gen.updateName(name);
+        gen.updateGender(gender);
+        $("#paragraph").val(gen.generateParagraph(problem1, problem2));
+    });
+    console.log("hello?", {
+        gen
+    });
+});
+
+</script>
+    </head>
+
+<body>
+    <h2>Boolean Search</h2>
+
+    <form id="form">
+        Name:
+        <input type="text" name="name" value="">
+        <br>
+        <input type="radio" name="gender" value="male" checked=""> Male<br>
+        <input type="radio" name="gender" value="female"> Female<br>
+
+        Problem 1:
+        <select class="problems" name="problem1">
+            <option value="" selected="">Any</option>
+        </select>
+        <br>
+        Problem 2:
+        <select class="problems" name="problem2">
+            <option value="" selected="">Any</option>
+        </select>
+        <br>
+        <input type="submit" value="Submit">
+    </form>
+
+    <textarea id="paragraph" rows="20" cols="100"></textarea>
+
+</body>
+</html>
